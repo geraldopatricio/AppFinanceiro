@@ -167,3 +167,27 @@ export function seedMaster() {
                 VALUES (?, ?, ?, ?, 'master', 'active', ?, datetime('now'), datetime('now'))`).run(uid(), name, email, hash, POLICY_VERSION);
     }
 }
+
+  export function seedTestAccount() {
+    const { enabled, name, email, password } = config.testAccount;
+    if (!enabled) return;
+    if (process.env.NODE_ENV === 'production') throw new Error('A conta de testes não pode ser habilitada em produção.');
+    if (!email || Buffer.byteLength(password, 'utf8') < 8 || Buffer.byteLength(password, 'utf8') > 72) {
+      throw new Error('Configure TEST_ACCOUNT_EMAIL e uma TEST_ACCOUNT_PASSWORD entre 8 e 72 bytes.');
+    }
+    if (email === config.master.email) throw new Error('A conta de testes deve usar um e-mail diferente da conta master.');
+
+    const existing = db.prepare('SELECT id, role FROM users WHERE email = ?').get(email);
+    if (existing?.role === 'master') throw new Error('O e-mail da conta de testes já pertence à conta master.');
+
+    const hash = bcrypt.hashSync(password, 12);
+    if (existing) {
+      db.prepare(`UPDATE users SET name=?, password_hash=?, role='user', status='active', admin_blocked=0,
+            policy_version=?, policy_accepted_at=datetime('now'), paid_at=datetime('now') WHERE id=?`)
+        .run(name, hash, POLICY_VERSION, existing.id);
+    } else {
+      db.prepare(`INSERT INTO users (id, name, email, password_hash, role, status, policy_version, policy_accepted_at, paid_at)
+            VALUES (?, ?, ?, ?, 'user', 'active', ?, datetime('now'), datetime('now'))`)
+        .run(uid(), name, email, hash, POLICY_VERSION);
+    }
+  }

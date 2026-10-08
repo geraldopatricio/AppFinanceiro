@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config.js';
-import { seedMaster } from './db.js';
+import { seedMaster, seedTestAccount } from './db.js';
 import { HttpError } from './asaas.js';
 import { authRouter } from './auth.js';
 import { billingRouter, webhookRouter } from './billing.js';
@@ -13,6 +13,7 @@ import { bankRouter } from './bank.js';
 import { adminRouter } from './admin.js';
 
 seedMaster();
+seedTestAccount();
 
 const app = express();
 app.disable('x-powered-by');

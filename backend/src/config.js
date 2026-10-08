@@ -18,6 +18,7 @@ export const config = {
     jwtSecret: env.JWT_SECRET,
     dbPath: path.resolve(backendRoot, env.DB_PATH || './data/app.db'),
     master: { name: env.MASTER_NAME || 'Master', email: (env.MASTER_EMAIL || '').trim().toLowerCase(), password: env.MASTER_PASSWORD || '' },
+    testAccount: { enabled: env.TEST_ACCOUNT_ENABLED === 'true', name: env.TEST_ACCOUNT_NAME || 'Conta de Testes', email: (env.TEST_ACCOUNT_EMAIL || '').trim().toLowerCase(), password: env.TEST_ACCOUNT_PASSWORD || '' },
     asaas: {
         token: env.ASAAS_API_TOKEN || '',
         webhookToken: env.ASAAS_WEBHOOK_TOKEN || '',
